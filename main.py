@@ -5,8 +5,6 @@ class Application(tk.Tk):
         super().__init__()
         self.title("Real-Time Drawing")
 
-        self.server_dict
-
         self.draw_mode = None
         self.current_color = None
         self.selected_item = None
@@ -27,8 +25,6 @@ class Application(tk.Tk):
         def add_to_list():
             if " " in entry.get():
                 return
-            self.server_dict.setdefault(entry.get(), [])
-            self.server_dict[entry.get()].update()
             list_box.insert(tk.END, entry.get())
             entry.delete(0, tk.END)
 
@@ -53,7 +49,7 @@ class Application(tk.Tk):
         mode_frame = tk.Frame(self.btn_frame)
         mode_frame.pack()
         for mode in ["Rectangle", "Oval", "Move", "Paint", "Delete"]:
-            tk.Button(mode_frame, text=mode,command=lambda m=mode.lower(): self.set_mode(m),bg='black').pack(side=tk.LEFT)
+            tk.Button(mode_frame, text=mode,command=lambda m=mode.lower(): self.set_mode(m),bg='white').pack(side=tk.LEFT)
 
         # Shorter way to create color buttons
         color_frame = tk.Frame(self.btn_frame)
@@ -106,11 +102,16 @@ class Application(tk.Tk):
                     self.start_x, self.start_y, self.start_x, self.start_y,
                     outline=self.current_color, fill=self.current_color
                 )
+                shape_id = self.current_shape
+                print(shape_id)
             elif self.draw_mode == "oval":
                 self.current_shape = self.canvas.create_oval(
                     self.start_x, self.start_y, self.start_x, self.start_y,
                     outline=self.current_color, fill=self.current_color
                 )
+                shape_id = self.current_shape
+                shapes = {shape_id}
+                print(shapes)
 
     def on_drag(self, event):
         if self.draw_mode == "move" and self.selected_item:
@@ -123,9 +124,10 @@ class Application(tk.Tk):
 class Sections:
     def __init__(self):
         self.sections = {}
+        print(app.current_shape)
 
 app = Application()
 
-print(app.server_dict)
+
 if __name__ == "__main__":
     app.mainloop()
