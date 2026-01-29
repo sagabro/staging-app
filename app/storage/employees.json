@@ -1,0 +1,102 @@
+[
+  {
+    "id": 1769722448,
+    "name": "Alice Smith",
+    "role": "admin"
+  },
+  {
+    "id": 1769722448,
+    "name": "Bob Johnson",
+    "role": "employee"
+  },
+  {
+    "id": 1769722448,
+    "name": "Carol Davis",
+    "role": "employee"
+  },
+  {
+    "id": 1769722448,
+    "name": "David Wilson",
+    "role": "employee"
+  },
+  {
+    "id": 1769722448,
+    "name": "Emma Brown",
+    "role": "employee"
+  },
+  {
+    "id": 1769722448,
+    "name": "Frank Miller",
+    "role": "manager"
+  },
+  {
+    "id": 1769722448,
+    "name": "Grace Lee",
+    "role": "employee"
+  },
+  {
+    "id": 1769722448,
+    "name": "Henry Garcia",
+    "role": "employee"
+  },
+  {
+    "id": 1769722448,
+    "name": "Ivy Martinez",
+    "role": "employee"
+  },
+  {
+    "id": 1769722448,
+    "name": "Jack Anderson",
+    "role": "employee"
+  },
+  {
+    "id": 1769722448,
+    "name": "Kate Thompson",
+    "role": "admin"
+  },
+  {
+    "id": 1769722448,
+    "name": "Luke Taylor",
+    "role": "employee"
+  },
+  {
+    "id": 1769722448,
+    "name": "Mia Moore",
+    "role": "employee"
+  },
+  {
+    "id": 1769722448,
+    "name": "Noah Jackson",
+    "role": "employee"
+  },
+  {
+    "id": 1769722448,
+    "name": "Olivia White",
+    "role": "employee"
+  },
+  {
+    "id": 1769722448,
+    "name": "Paul Harris",
+    "role": "manager"
+  },
+  {
+    "id": 1769722448,
+    "name": "Quinn Martin",
+    "role": "employee"
+  },
+  {
+    "id": 1769722448,
+    "name": "Ruby Clark",
+    "role": "employee"
+  },
+  {
+    "id": 1769722448,
+    "name": "Sam Lewis",
+    "role": "employee"
+  },
+  {
+    "id": 1769722448,
+    "name": "Tara Walker",
+    "role": "employee"
+  }
+]
