@@ -1,5 +1,5 @@
-from examples.app import repositories as repo
-from examples.app.utils.init_data import init_data
+from app import repositories as repo
+from app.utils.init_data import init_data
 
 
 def main():

@@ -1,6 +1,6 @@
 import json
-from examples.app.models import Employee
-from examples.app.config import EMPLOYEES_FILE
+from app.models import Employee
+from app.config import EMPLOYEES_FILE
 
 
 def read() -> list[Employee]:

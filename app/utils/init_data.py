@@ -1,4 +1,4 @@
-from examples.app.models import Employee, EmployeeRole, Table
+from app.models import Employee, EmployeeRole, Table
 
 
 def init_data(repo):

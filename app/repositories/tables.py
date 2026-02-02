@@ -1,6 +1,6 @@
 import json
-from examples.app.models import Table
-from examples.app.config import TABLES_FILE
+from app.models import Table
+from app.config import TABLES_FILE
 
 
 def read() -> list[Table]:
