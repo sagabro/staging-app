@@ -1,11 +1,9 @@
 import tkinter as tk
-import databaselogic as db
+import databaselogic
 class Application(tk.Tk):
-
     def __init__(self):
         super().__init__()
         self.title("Real-Time Drawing")
-
 
         self.draw_mode = None
         self.current_color = None
@@ -20,14 +18,21 @@ class Application(tk.Tk):
         entry = tk.Entry(self.list_section_frame) # Parent is now the frame
         entry.pack(fill="x")
 
+
         list_box = tk.Listbox(self.list_section_frame) # Parent is now the frame
         list_box.pack(fill="y", expand=True)
 
         def add_to_list():
-            if entry.get():
-                list_box.insert(tk.END, entry.get())
-                name = entry.get()
-                db.insert_server_data(name)
+            server_name = entry.get()
+            if " " in server_name:
+                return
+
+            try:
+                databaselogic.insert_server_data(server_name, "1", 1, 1)
+                list_box.insert(tk.END, server_name)
+                entry.delete(0, tk.END)
+            except ValueError as e:
+                print(f"Error: {e}")
 
         def delete_list():
             if list_box.curselection():
@@ -49,8 +54,8 @@ class Application(tk.Tk):
         # Shorter way to create mode buttons
         mode_frame = tk.Frame(self.btn_frame)
         mode_frame.pack()
-        for mode in ["Rectangle", "Oval", "Move", "Paint", "Delete","select"]:
-            tk.Button(mode_frame, text=mode,command=lambda m=mode.lower(): self.set_mode(m),bg='black').pack(side=tk.LEFT)
+        for mode in ["Rectangle", "Oval", "Move", "Paint", "Delete"]:
+            tk.Button(mode_frame, text=mode,command=lambda m=mode.lower(): self.set_mode(m),bg='white').pack(side=tk.LEFT)
 
         # Shorter way to create color buttons
         color_frame = tk.Frame(self.btn_frame)
@@ -68,11 +73,6 @@ class Application(tk.Tk):
 
     def set_color(self, color):
         self.current_color = color
-
-    def select_mode(self):
-        if  self.draw_mode == "select":
-            self.canvas.config(cursor="arrow")
-
 
     def toggle_menu(self):
         if self.menu_visible:
@@ -108,11 +108,16 @@ class Application(tk.Tk):
                     self.start_x, self.start_y, self.start_x, self.start_y,
                     outline=self.current_color, fill=self.current_color
                 )
+                shape_id = self.current_shape
+                print(shape_id)
             elif self.draw_mode == "oval":
                 self.current_shape = self.canvas.create_oval(
                     self.start_x, self.start_y, self.start_x, self.start_y,
                     outline=self.current_color, fill=self.current_color
                 )
+                shape_id = self.current_shape
+                shapes = {shape_id}
+                print(shapes)
 
     def on_drag(self, event):
         if self.draw_mode == "move" and self.selected_item:
@@ -122,17 +127,13 @@ class Application(tk.Tk):
             self.last_x, self.last_y = event.x, event.y
         elif self.current_shape:
             self.canvas.coords(self.current_shape, self.start_x, self.start_y, event.x, event.y)
-class add_sections_toDB():
-    def __init__(self, table_ids, table_coordinates ,section_name):
-        self.table_id = self.current_shape
-        self.table_coordinates = None
-        self.section_name = None
+class Sections:
+    def __init__(self):
+        self.sections = {}
+        print(app.current_shape)
 
-class add_servers_toDB():
-    def __init__(self, server_name, section_name, rotation):
-        self.server_name = None
-        self.section_name = None
-        self.rotation = None
 app = Application()
+
+
 if __name__ == "__main__":
     app.mainloop()
