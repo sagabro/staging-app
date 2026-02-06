@@ -46,4 +46,12 @@ def rename_column(table_name:str, old_column_name:str, new_column_name:str) -> N
         with conn:
             conn.execute(f"ALTER TABLE {table_name} RENAME COLUMN {old_column_name} TO {new_column_name}")
 
-create_datatable()
+def remove_server(server_name:str) -> None:
+    with sqlite3.connect(DB_PATH) as conn:
+        with conn:
+            conn.execute(f"DELETE FROM servers WHERE server_name = '{server_name}'")
+
+def clear_table(table_name:str) -> None:
+    with sqlite3.connect(DB_PATH) as conn:
+        with conn:
+            conn.execute(f"DELETE FROM {table_name}")

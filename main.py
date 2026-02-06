@@ -3,7 +3,7 @@ import databaselogic
 class Application(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Real-Time Drawing")
+        self.title("floor chart")
 
         self.draw_mode = None
         self.current_color = None
@@ -37,6 +37,7 @@ class Application(tk.Tk):
         def delete_list():
             if list_box.curselection():
                 cursor = list_box.curselection()
+                databaselogic.remove_server(list_box.get(cursor[0]))
                 list_box.delete(cursor)
 
         delete_btn = tk.Button(self.list_section_frame, text="delete form list", command=delete_list)
@@ -115,9 +116,7 @@ class Application(tk.Tk):
                     self.start_x, self.start_y, self.start_x, self.start_y,
                     outline=self.current_color, fill=self.current_color
                 )
-                shape_id = self.current_shape
-                shapes = {shape_id}
-                print(shapes)
+
 
     def on_drag(self, event):
         if self.draw_mode == "move" and self.selected_item:
@@ -127,13 +126,15 @@ class Application(tk.Tk):
             self.last_x, self.last_y = event.x, event.y
         elif self.current_shape:
             self.canvas.coords(self.current_shape, self.start_x, self.start_y, event.x, event.y)
+
 class Sections:
-    def __init__(self):
-        self.sections = {}
-        print(app.current_shape)
+    def __init__(self,table_id:int, table_coordinates:int, section_name:str):
+        self.table_id = table_id
+        self.table_coordinates = table_coordinates
+        self.section_name = section_name
 
 app = Application()
 
-
+# databaselogic.clear_table("servers")
 if __name__ == "__main__":
     app.mainloop()
