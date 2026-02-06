@@ -28,7 +28,7 @@ class Application(tk.Tk):
                 return
 
             try:
-                databaselogic.insert_server_data(server_name, "1", 1, 1)
+                databaselogic.insert_server_data(server_name, "", 0, 0)
                 list_box.insert(tk.END, server_name)
                 entry.delete(0, tk.END)
             except ValueError as e:

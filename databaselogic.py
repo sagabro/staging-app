@@ -7,7 +7,7 @@ def create_datatable() -> None:
     with sqlite3.connect(DB_PATH) as conn:
         conn.execute(
             """CREATE TABLE IF NOT EXISTS servers (
-                name TEXT PRIMARY KEY,
+                server_name TEXT PRIMARY KEY,
                 section TEXT,
                 rotation INTEGER,
                 amount_of_tables INTEGER 
@@ -46,3 +46,4 @@ def rename_column(table_name:str, old_column_name:str, new_column_name:str) -> N
         with conn:
             conn.execute(f"ALTER TABLE {table_name} RENAME COLUMN {old_column_name} TO {new_column_name}")
 
+create_datatable()
