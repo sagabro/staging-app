@@ -1,9 +1,10 @@
 import tkinter as tk
-import databaselogic
+import databaselogic as db
 class Application(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("floor chart")
+        self.title("Real-Time Drawing")
+
 
         self.draw_mode = None
         self.current_color = None
@@ -18,26 +19,19 @@ class Application(tk.Tk):
         entry = tk.Entry(self.list_section_frame) # Parent is now the frame
         entry.pack(fill="x")
 
-
         list_box = tk.Listbox(self.list_section_frame) # Parent is now the frame
         list_box.pack(fill="y", expand=True)
 
         def add_to_list():
-            server_name = entry.get()
-            if " " in server_name:
-                return
-
-            try:
-                databaselogic.insert_server_data(server_name, "", 0, 0)
-                list_box.insert(tk.END, server_name)
+            if entry.get():
+                list_box.insert(tk.END, entry.get())
+                name = entry.get()
+                db.insert_server_data(name)
                 entry.delete(0, tk.END)
-            except ValueError as e:
-                print(f"Error: {e}")
 
         def delete_list():
             if list_box.curselection():
                 cursor = list_box.curselection()
-                databaselogic.remove_server(list_box.get(cursor[0]))
                 list_box.delete(cursor)
 
         delete_btn = tk.Button(self.list_section_frame, text="delete form list", command=delete_list)
@@ -55,8 +49,8 @@ class Application(tk.Tk):
         # Shorter way to create mode buttons
         mode_frame = tk.Frame(self.btn_frame)
         mode_frame.pack()
-        for mode in ["Rectangle", "Oval", "Move", "Paint", "Delete"]:
-            tk.Button(mode_frame, text=mode,command=lambda m=mode.lower(): self.set_mode(m),bg='white').pack(side=tk.LEFT)
+        for mode in ["Rectangle", "Oval", "Move", "Paint", "Delete","select"]:
+            tk.Button(mode_frame, text=mode,command=lambda m=mode.lower(): self.set_mode(m),bg='black').pack(side=tk.LEFT)
 
         # Shorter way to create color buttons
         color_frame = tk.Frame(self.btn_frame)
@@ -75,6 +69,11 @@ class Application(tk.Tk):
     def set_color(self, color):
         self.current_color = color
 
+    def select_mode(self):
+        if  self.draw_mode == "select":
+            item = self.canvas.find_withtag("current")
+            self.canvas.itemconfig(item[0], outline="blue")
+
     def toggle_menu(self):
         if self.menu_visible:
             self.btn_frame.pack_forget()
@@ -87,21 +86,38 @@ class Application(tk.Tk):
 
     def set_mode(self, mode):
         self.draw_mode = mode
+        self.current_shape = None
+        self.selected_item = None
 
     def on_press(self, event):
         if self.draw_mode == "move":
+            self.current_shape = None
             items = self.canvas.find_closest(event.x, event.y)
             if items:
                 self.selected_item = items[0]
                 self.last_x, self.last_y = event.x, event.y
+
         elif self.draw_mode == "paint":
+            self.current_shape = None
             items = self.canvas.find_closest(event.x, event.y)
             if items:
                 self.canvas.itemconfig(items[0], fill=self.current_color, outline="black")
+
         elif self.draw_mode == "delete":
+            self.current_shape = None
             items = self.canvas.find_closest(event.x, event.y)
             if items:
                 self.canvas.delete(items[0])
+
+        elif self.draw_mode == "select":
+            self.current_shape = None
+            items = self.canvas.find_closest(event.x, event.y)
+            if items:
+                item_id = items[0]
+                coords = self.canvas.coords(item_id)
+                item_type = self.canvas.type(item_id)
+                print(f"Selected item_id={item_id} type={item_type} coords={coords}")
+
         else:
             self.start_x, self.start_y = event.x, event.y
             if self.draw_mode == "rectangle":
@@ -109,14 +125,11 @@ class Application(tk.Tk):
                     self.start_x, self.start_y, self.start_x, self.start_y,
                     outline=self.current_color, fill=self.current_color
                 )
-                shape_id = self.current_shape
-                print(shape_id)
             elif self.draw_mode == "oval":
                 self.current_shape = self.canvas.create_oval(
                     self.start_x, self.start_y, self.start_x, self.start_y,
                     outline=self.current_color, fill=self.current_color
                 )
-
 
     def on_drag(self, event):
         if self.draw_mode == "move" and self.selected_item:
@@ -124,17 +137,23 @@ class Application(tk.Tk):
             dy = event.y - self.last_y
             self.canvas.move(self.selected_item, dx, dy)
             self.last_x, self.last_y = event.x, event.y
-        elif self.current_shape:
+
+        elif self.draw_mode in ("rectangle", "oval") and self.current_shape:
             self.canvas.coords(self.current_shape, self.start_x, self.start_y, event.x, event.y)
+class Shapes():
+    def __init__(self, table_ids, table_coordinates ,section_name):
+        self.table_id = None
+        self.table_coordinates = None
+        self.section_name = None
 
-class Sections:
-    def __init__(self,table_id:int, table_coordinates:int, section_name:str):
-        self.table_id = table_id
-        self.table_coordinates = table_coordinates
-        self.section_name = section_name
 
+
+class sections():
+    def __init__(self, server_name, section_name, rotation):
+        self.server_name = None
+        self.section_name = None
+        self.rotation = None
 app = Application()
-
-# databaselogic.clear_table("servers")
 if __name__ == "__main__":
+    #db.delete_database("servers")
     app.mainloop()
