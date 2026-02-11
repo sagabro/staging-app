@@ -1,5 +1,7 @@
 import tkinter as tk
 import databaselogic as db
+selected_items = {}
+
 class Application(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -116,6 +118,7 @@ class Application(tk.Tk):
                 item_id = items[0]
                 coords = self.canvas.coords(item_id)
                 item_type = self.canvas.type(item_id)
+
                 print(f"Selected item_id={item_id} type={item_type} coords={coords}")
 
         else:
@@ -123,12 +126,12 @@ class Application(tk.Tk):
             if self.draw_mode == "rectangle":
                 self.current_shape = self.canvas.create_rectangle(
                     self.start_x, self.start_y, self.start_x, self.start_y,
-                    outline=self.current_color, fill=self.current_color
+                    outline="black", fill=self.current_color
                 )
             elif self.draw_mode == "oval":
                 self.current_shape = self.canvas.create_oval(
                     self.start_x, self.start_y, self.start_x, self.start_y,
-                    outline=self.current_color, fill=self.current_color
+                    outline="black", fill=self.current_color
                 )
 
     def on_drag(self, event):

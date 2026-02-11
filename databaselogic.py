@@ -21,6 +21,15 @@ def create_datatable() -> None:
                 section_name TEXT
             )"""
         )
+        conn.execute(
+           """CREATE TABLE IF NOT EXISTS table_data (
+                
+           
+           
+           )"""
+
+
+        )
 
 
 def insert_server_data(name: str, section: str, rotation: int, amount_of_tables: int) -> None:
