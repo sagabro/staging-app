@@ -1,6 +1,8 @@
 import tkinter as tk
+from contextlib import nullcontext
+
 import databaselogic as db
-selected_items = {}
+from tkinter import simpledialog, messagebox
 
 class Application(tk.Tk):
     def __init__(self):
@@ -25,16 +27,26 @@ class Application(tk.Tk):
         list_box.pack(fill="y", expand=True)
 
         def add_to_list():
-            if entry.get():
-                list_box.insert(tk.END, entry.get())
-                name = entry.get()
-                db.insert_server_data(name)
-                entry.delete(0, tk.END)
+            server_name = entry.get().strip().lower()
+            if server_name:
+                try:
+                    Server(server_name=server_name, section_name="default")
+                    list_box.insert(tk.END, server_name)
+                except ValueError as e:
+                    pass
+                finally:
+                    entry.delete(0, tk.END)
 
         def delete_list():
             if list_box.curselection():
                 cursor = list_box.curselection()
                 list_box.delete(cursor)
+
+        def get_table_size():
+            if mode == "Rectangle":
+                table_size = simpledialog.askstring("Input", "Enter your name:")
+
+
 
         delete_btn = tk.Button(self.list_section_frame, text="delete form list", command=delete_list)
         delete_btn.pack(fill="x")
@@ -71,11 +83,6 @@ class Application(tk.Tk):
     def set_color(self, color):
         self.current_color = color
 
-    def select_mode(self):
-        if  self.draw_mode == "select":
-            item = self.canvas.find_withtag("current")
-            self.canvas.itemconfig(item[0], outline="blue")
-
     def toggle_menu(self):
         if self.menu_visible:
             self.btn_frame.pack_forget()
@@ -90,6 +97,7 @@ class Application(tk.Tk):
         self.draw_mode = mode
         self.current_shape = None
         self.selected_item = None
+
 
     def on_press(self, event):
         if self.draw_mode == "move":
@@ -118,8 +126,7 @@ class Application(tk.Tk):
                 item_id = items[0]
                 coords = self.canvas.coords(item_id)
                 item_type = self.canvas.type(item_id)
-
-                print(f"Selected item_id={item_id} type={item_type} coords={coords}")
+                #trying to save current tables into some sort of dictionary/list
 
         else:
             self.start_x, self.start_y = event.x, event.y
@@ -143,20 +150,29 @@ class Application(tk.Tk):
 
         elif self.draw_mode in ("rectangle", "oval") and self.current_shape:
             self.canvas.coords(self.current_shape, self.start_x, self.start_y, event.x, event.y)
-class Shapes():
-    def __init__(self, table_ids, table_coordinates ,section_name):
-        self.table_id = None
-        self.table_coordinates = None
-        self.section_name = None
-
-
-
-class sections():
-    def __init__(self, server_name, section_name, rotation):
-        self.server_name = None
-        self.section_name = None
-        self.rotation = None
 app = Application()
+
+class Server:
+    server_dict = {}
+
+    def __init__(self, server_name: str, section_name: str):
+        self.server_name = server_name
+        self.section_name = section_name
+
+        self.rotation = simpledialog.askinteger("Rotation", "order in rotation:") or 0
+        self.amount_tables = simpledialog.askstring("section", "what section") or None
+
+        # Save to class-level dict
+        Server.server_dict[server_name] = {
+            "name": self.server_name,
+            "rotation": self.rotation,
+            "amount_tables": self.amount_tables,
+            "section_name": self.section_name,
+        }
+
 if __name__ == "__main__":
-    #db.delete_database("servers")
+    #db.delete_database("sections")
+    #db.create_datatable()
+    #db.delete_servers("")
+    #server.get_rotation()
     app.mainloop()

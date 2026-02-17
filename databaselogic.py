@@ -5,50 +5,25 @@ DB_PATH = "staging.db"
 
 def create_datatable() -> None:
     with sqlite3.connect(DB_PATH) as conn:
-        conn.execute(
-            """CREATE TABLE IF NOT EXISTS servers (
-                name TEXT,
-                section TEXT,
-                rotation INTEGER,
-                amount_of_tables INTEGER
-            )"""
-        )
 
         conn.execute(
             """CREATE TABLE IF NOT EXISTS sections (
-                table_id INTEGER,
-                table_coordinates TEXT,
-                section_name TEXT
+                section_name TEXT PRIMARY KEY,
+                tables int null
             )"""
         )
         conn.execute(
-           """CREATE TABLE IF NOT EXISTS table_data (
-                
-           
-           
-           )"""
-
-
+            """CREATE TABLE IF NOT EXISTS tables (
+                table_id INTEGER PRIMARY KEY,
+                coordinates TEXT,
+                item_type TEXT
+            )"""
         )
 
-
-def insert_server_data(name: str, section: str, rotation: int, amount_of_tables: int) -> None:
-    name = name.strip()
-    section = section.strip()
-    if not name:
-        raise ValueError("Server name cannot be empty")
-    if not section:
-        raise ValueError("Section cannot be empty")
-
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.execute(
-            "INSERT INTO servers (name, section, rotation, amount_of_tables) VALUES (?, ?, ?, ?)",
-            (name, section, int(rotation), int(amount_of_tables)),
-        )
 def insert_section_data(table_id:int, table_coordinates:int, section_name:str) -> None:
     with sqlite3.connect(DB_PATH) as conn:
         conn.execute(
-            "INSERT INTO sections (table_id, table_coordinates, section_name) VALUES (?, ?, ?)",
+            "INSERT INTO sections (section_name,table_id, table_coordinates) VALUES (?, ?, ?)",
             (int(table_id), int(table_coordinates), section_name),
         )
 def delete_database(table:str) -> None:
@@ -59,3 +34,13 @@ def delete_database(table:str) -> None:
             print ("Table deleted successfully")
         except sqlite3.Error as e:
             print(f"Error deleting table: {e}")
+def delete_sections(section_name:str) -> None:
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.execute(f"DELETE FROM sections WHERE section_name = '{section_name}'")
+        (str(section_name))
+def insert_table_data(table_id:int, table_coordinates:int, section_name:str, item_type=None) -> None:
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.execute(
+            "INSERT INTO tables (table_id,coordinates,item_type) VALUES (?,?)",
+            (int(table_id), int(table_coordinates),int(item_type)),
+        )
