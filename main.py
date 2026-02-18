@@ -64,7 +64,7 @@ class Application(tk.Tk):
         mode_frame = tk.Frame(self.btn_frame)
         mode_frame.pack()
         for mode in ["Rectangle", "Oval", "Move", "Paint", "Delete","select"]:
-            tk.Button(mode_frame, text=mode,command=lambda m=mode.lower(): self.set_mode(m),bg='black').pack(side=tk.LEFT)
+            tk.Button(mode_frame, text=mode,command=lambda m=mode.lower(): self.set_mode(m),bg='lightgrey').pack(side=tk.LEFT)
 
         # Shorter way to create color buttons
         color_frame = tk.Frame(self.btn_frame)
@@ -72,7 +72,7 @@ class Application(tk.Tk):
         colors = [("Red", "red"), ("yellow","yellow"), ("Green", "green",), ("orange", "orange")]
 
         for text, color in colors:
-            tk.Button(color_frame, text=text, fg=color, command=lambda c=color: self.set_color(c)).pack(side=tk.LEFT)
+            tk.Button(color_frame,bg='lightgrey', text=text, fg=color, command=lambda c=color: self.set_color(c)).pack(side=tk.LEFT)
 
         self.canvas = tk.Canvas(self, bg="white", width=400, height=400)
         self.canvas.pack(fill=tk.BOTH, expand=True)
