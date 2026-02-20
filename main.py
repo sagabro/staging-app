@@ -1,5 +1,5 @@
 import tkinter as tk
-from contextlib import nullcontext
+from tkinter import simpledialog, messagebox
 
 import databaselogic as db
 from tkinter import simpledialog, messagebox
@@ -30,9 +30,10 @@ class Application(tk.Tk):
             server_name = entry.get().strip().lower()
             if server_name:
                 try:
-                    Server(server_name=server_name, section_name="default")
+                    Server(server_name=server_name)
                     list_box.insert(tk.END, server_name)
                 except ValueError as e:
+                    print(e)
                     pass
                 finally:
                     entry.delete(0, tk.END)
@@ -41,12 +42,6 @@ class Application(tk.Tk):
             if list_box.curselection():
                 cursor = list_box.curselection()
                 list_box.delete(cursor)
-
-        def get_table_size():
-            if mode == "Rectangle":
-                table_size = simpledialog.askstring("Input", "Enter your name:")
-
-
 
         delete_btn = tk.Button(self.list_section_frame, text="delete form list", command=delete_list)
         delete_btn.pack(fill="x")
@@ -63,7 +58,7 @@ class Application(tk.Tk):
         # Shorter way to create mode buttons
         mode_frame = tk.Frame(self.btn_frame)
         mode_frame.pack()
-        for mode in ["Rectangle", "Oval", "Move", "Paint", "Delete","select"]:
+        for mode in ["Rectangle", "Oval", "Move", "Paint", "Delete","select", "seating",]:
             tk.Button(mode_frame, text=mode,command=lambda m=mode.lower(): self.set_mode(m),bg='lightgrey').pack(side=tk.LEFT)
 
         # Shorter way to create color buttons
@@ -117,7 +112,9 @@ class Application(tk.Tk):
             self.current_shape = None
             items = self.canvas.find_closest(event.x, event.y)
             if items:
-                self.canvas.delete(items[0])
+                item_id = items[0]
+                self.canvas.delete(item_id)
+                self.tables.pop(item_id, None)  # remove from dict if it exists
 
         elif self.draw_mode == "select":
             self.current_shape = None
@@ -139,7 +136,8 @@ class Application(tk.Tk):
                 self.current_shape = self.canvas.create_oval(
                     self.start_x, self.start_y, self.start_x, self.start_y,
                     outline="black", fill=self.current_color
-                )
+               )
+
 
     def on_drag(self, event):
         if self.draw_mode == "move" and self.selected_item:
@@ -150,25 +148,58 @@ class Application(tk.Tk):
 
         elif self.draw_mode in ("rectangle", "oval") and self.current_shape:
             self.canvas.coords(self.current_shape, self.start_x, self.start_y, event.x, event.y)
+
+
 app = Application()
+
+
+def pop_up(app,dialog_callable,*args,**kwargs):
+        x,y = app.winfo_rootx(), app.winfo_rooty()
+        window = tk.Toplevel(app)
+        window.overrideredirect(True)
+        window.geometry(f"+{x}+{y}")
+
+        window.update_idletasks()
+        try:
+            kwargs.setdefault("parent", window)
+            return dialog_callable(*args, **kwargs)
+        finally:
+            window.destroy()
 
 class Server:
     server_dict = {}
 
-    def __init__(self, server_name: str, section_name: str):
+    def __init__(self, server_name: str):
+        rotation = pop_up(app, simpledialog.askinteger, "Rotation", "order in rotation:") or 0
+        section = pop_up(app, simpledialog.askstring, "Section", "Enter section name:") or None
+
         self.server_name = server_name
-        self.section_name = section_name
+        self.section = section
 
-        self.rotation = simpledialog.askinteger("Rotation", "order in rotation:") or 0
-        self.amount_tables = simpledialog.askstring("section", "what section") or None
-
-        # Save to class-level dict
         Server.server_dict[server_name] = {
-            "name": self.server_name,
-            "rotation": self.rotation,
-            "amount_tables": self.amount_tables,
-            "section_name": self.section_name,
+            "name": server_name,
+            "rotation": rotation,
+            "section_name": section,
+            "amount_of_tables": None
         }
+        print(Server.server_dict)
+
+tables = {}
+class Table:
+    def __init__(self, table_id: int, coords: int, section_name: str, item_type=None):
+        table_id = app.current_shape
+        coords = app.canvas.coords(app.current_shape)
+        section_name = section_name
+        item_type = app.draw_mode
+
+        def add_table():
+            tables[table_id] = {
+            "table_id": table_id,
+            "coords": coords,
+            "section_name": section_name,
+            "item_type": item_type
+        }
+            return tables
 
 if __name__ == "__main__":
     #db.delete_database("sections")
