@@ -1,9 +1,8 @@
 import tkinter as tk
-from tkinter import simpledialog, messagebox
-
 import databaselogic as db
 from tkinter import simpledialog, messagebox
 
+tables = {}
 class Application(tk.Tk):
     tables = {}
     def __init__(self):
@@ -109,6 +108,8 @@ class Application(tk.Tk):
             items = self.canvas.find_closest(event.x, event.y)
             if items:
                 self.canvas.itemconfig(items[0], fill=self.current_color, outline="black")
+                tables.setdefault(items[0], {"color": self.current_color})
+
 
         elif self.draw_mode == "delete":
             self.current_shape = None
@@ -120,11 +121,7 @@ class Application(tk.Tk):
 
         elif self.draw_mode == "select":
             self.current_shape = None
-            items = self.canvas.find_closest(event.x, event.y)
-            if items:
-                item_id = items[0]
-                coords = self.canvas.coords(item_id)
-                item_type = self.canvas.type(item_id)
+
 
         else:
             self.start_x, self.start_y = event.x, event.y
@@ -139,6 +136,15 @@ class Application(tk.Tk):
                     outline="black", fill=self.current_color
                )
 
+    def select_shape(self,event):
+        if app.draw_mode == "select" and app.selected_item == None:
+            selected_shape = app.canvas.find_closest(event.x, event.y)[0]
+
+    def seat_table(self):
+        if app.mode == "seating":
+            shape = app.item
+            table_size = pop_up(app, simpledialog.askinteger, "Table size", "Enter table size:") or 0
+            tables.setdefault(shape[0], {"size": table_size})
 
     def on_drag(self, event):
         if self.draw_mode == "move" and self.selected_item:
@@ -157,9 +163,10 @@ class Application(tk.Tk):
                 "coords": self.canvas.coords(self.current_shape),
                 "item_type": self.draw_mode,
                 "color": self.current_color,
+                "size": self.shape_size,
             }
-            print(self.tables)
             self.current_shape = None
+            print(self.tables)
 
 
 app = Application()
