@@ -5,6 +5,7 @@ import databaselogic as db
 from tkinter import simpledialog, messagebox
 
 class Application(tk.Tk):
+    tables = {}
     def __init__(self):
         super().__init__()
         self.title("Real-Time Drawing")
@@ -74,6 +75,7 @@ class Application(tk.Tk):
 
         self.canvas.bind("<Button-1>", self.on_press)
         self.canvas.bind("<B1-Motion>", self.on_drag)
+        self.canvas.bind("<ButtonRelease-1>", self.on_release)
 
     def set_color(self, color):
         self.current_color = color
@@ -123,7 +125,6 @@ class Application(tk.Tk):
                 item_id = items[0]
                 coords = self.canvas.coords(item_id)
                 item_type = self.canvas.type(item_id)
-                #trying to save current tables into some sort of dictionary/list
 
         else:
             self.start_x, self.start_y = event.x, event.y
@@ -148,6 +149,17 @@ class Application(tk.Tk):
 
         elif self.draw_mode in ("rectangle", "oval") and self.current_shape:
             self.canvas.coords(self.current_shape, self.start_x, self.start_y, event.x, event.y)
+
+    def on_release(self, event):
+        if self.draw_mode in ("rectangle", "oval") and self.current_shape:
+            self.tables[self.current_shape] = {
+                "table_id": self.current_shape,
+                "coords": self.canvas.coords(self.current_shape),
+                "item_type": self.draw_mode,
+                "color": self.current_color,
+            }
+            print(self.tables)
+            self.current_shape = None
 
 
 app = Application()
@@ -183,23 +195,6 @@ class Server:
             "amount_of_tables": None
         }
         print(Server.server_dict)
-
-tables = {}
-class Table:
-    def __init__(self, table_id: int, coords: int, section_name: str, item_type=None):
-        table_id = app.current_shape
-        coords = app.canvas.coords(app.current_shape)
-        section_name = section_name
-        item_type = app.draw_mode
-
-        def add_table():
-            tables[table_id] = {
-            "table_id": table_id,
-            "coords": coords,
-            "section_name": section_name,
-            "item_type": item_type
-        }
-            return tables
 
 if __name__ == "__main__":
     #db.delete_database("sections")
