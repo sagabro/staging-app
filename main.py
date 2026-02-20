@@ -1,14 +1,18 @@
 import tkinter as tk
+from typing import Any
+
 import databaselogic as db
 from tkinter import simpledialog, messagebox
 
 tables = {}
+
 class Application(tk.Tk):
     tables = {}
     def __init__(self):
         super().__init__()
+        self.app = None
+        self.item = None
         self.title("Real-Time Drawing")
-
 
         self.draw_mode = None
         self.current_color = None
@@ -16,7 +20,6 @@ class Application(tk.Tk):
         self.last_x ,self.start_y, self.start_x,self.last_y = 0,0,0,0
         self.current_shape = None
 
-        # Create a specific frame for the list section
         self.list_section_frame = tk.Frame(self)
         self.list_section_frame.pack(side=tk.LEFT, fill="y", padx=5, pady=5)
 
@@ -75,6 +78,7 @@ class Application(tk.Tk):
         self.canvas.bind("<Button-1>", self.on_press)
         self.canvas.bind("<B1-Motion>", self.on_drag)
         self.canvas.bind("<ButtonRelease-1>", self.on_release)
+        self.canvas.bind("<Button-1>", lambda e: select_shape(e), add="+")
 
     def set_color(self, color):
         self.current_color = color
@@ -136,16 +140,6 @@ class Application(tk.Tk):
                     outline="black", fill=self.current_color
                )
 
-    def select_shape(self,event):
-        if app.draw_mode == "select" and app.selected_item == None:
-            selected_shape = app.canvas.find_closest(event.x, event.y)[0]
-
-    def seat_table(self):
-        if app.mode == "seating":
-            shape = app.item
-            table_size = pop_up(app, simpledialog.askinteger, "Table size", "Enter table size:") or 0
-            tables.setdefault(shape[0], {"size": table_size})
-
     def on_drag(self, event):
         if self.draw_mode == "move" and self.selected_item:
             dx = event.x - self.last_x
@@ -156,22 +150,41 @@ class Application(tk.Tk):
         elif self.draw_mode in ("rectangle", "oval") and self.current_shape:
             self.canvas.coords(self.current_shape, self.start_x, self.start_y, event.x, event.y)
 
-    def on_release(self, event):
+    def on_release(self,event):
         if self.draw_mode in ("rectangle", "oval") and self.current_shape:
+            table_size = seat_table()
             self.tables[self.current_shape] = {
                 "table_id": self.current_shape,
                 "coords": self.canvas.coords(self.current_shape),
                 "item_type": self.draw_mode,
                 "color": self.current_color,
-                "size": self.shape_size,
+                "table_size": table_size
             }
             self.current_shape = None
             print(self.tables)
 
-
+            seat_table()
 app = Application()
 
+def select_shape(event):
+    if app.draw_mode == "select":
+        items = app.canvas.find_closest(event.x, event.y)
+        if items:
+            if app.selected_item:
+                app.canvas.itemconfig(app.selected_item, outline="black", width=1)
+            app.selected_item = items[0]
+            app.canvas.itemconfig(app.selected_item, outline="lightblue", width=3)
+            print(f"Selected shape ID: {app.selected_item}")
 
+
+def seat_table() -> int:
+    if app.draw_mode == "seating":
+
+        pop_up(app,simpledialog.askinteger, "Table size", "Enter table size:") or 0
+    return 0
+
+select_shape(None)
+seat_table()
 def pop_up(app,dialog_callable,*args,**kwargs):
         x,y = app.winfo_rootx(), app.winfo_rooty()
         window = tk.Toplevel(app)
