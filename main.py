@@ -169,8 +169,6 @@ class Application(tk.Tk):
         self.current_shape = self.canvas.create_rectangle(
             self.start_x, self.start_y, self.start_x, self.start_y,
             outline="black", fill=self.current_condition,
-            tags=("shape",f"table_{self.current_shape}"),
-
         )
 
     def _handle_oval(self, event):
@@ -178,7 +176,6 @@ class Application(tk.Tk):
         self.current_shape = self.canvas.create_oval(
             self.start_x, self.start_y, self.start_x, self.start_y,
             outline="black", fill=self.current_condition,
-            tags=("shape","label",f"table_{self.current_shape}",)
         )
 
     def on_release(self,event):
@@ -189,14 +186,18 @@ class Application(tk.Tk):
             shape_coords = self.canvas.coords(self.current_shape)
             text_x = (shape_coords[0] + shape_coords[2]) / 2
             text_y = (shape_coords[1] + shape_coords[3]) / 2
-            label_id = self.canvas.create_text(text_x, text_y, text=str(table_size), fill="black", font=("Arial", 12))
+            label_id = self.canvas.create_text(text_x, text_y,
+                text=str(table_size),
+                fill="black",
+                font=("Arial", 12),
+                tags=("shape","1"))
 
-            label_id = self.canvas.create_text(self.start_x, self.start_y,
-                                               text=str(table_size),
-                                               fill="black",
-                                               font=("Arial", 12),
-                                               tags=("label_id", f"table_{self.current_shape}",)
-                                               )
+            group_tag = f"group_{self.current_shape}"
+            self.canvas.addtag_withtag(group_tag, self.current_shape)
+            self.canvas.addtag_withtag(group_tag, label_id)
+
+            self.current_shape = None
+            print(self.tables)
 
             self.tables[self.current_shape] = {
                 "table_id": self.current_shape,
@@ -205,6 +206,7 @@ class Application(tk.Tk):
                 "condition": self.current_condition,
                 "table_size": table_size,
                 "label_id": label_id,
+                "group_tag": group_tag,
             }
             self.current_shape = None
             print(self.tables)
@@ -214,13 +216,11 @@ class Application(tk.Tk):
             if self.current_shape:
                 self.canvas.coords(self.current_shape, self.start_x, self.start_y, event.x, event.y)
         elif self.draw_mode == "move":
-            if self.selected_item:
-                dx, dy = event.x - self.last_x, event.y - self.last_y
-                self.canvas.move(self.selected_item, dx, dy)
-                if self.selected_item in self.tables and "label_id" in self.tables[self.selected_item]:
-                    self.canvas.coords(self.tables[self.selected_item]["table_id"], dx, dy)
-                    self.canvas.coords(self.tables[self.selected_item]["label_id"], dx, dy)
-                self.last_x, self.last_y = event.x, event.y
+            dx, dy = event.x - self.last_x, event.y - self.last_y
+            group_tag = self.tables.get(self.selected_item, {}).get("group_tag")
+            if group_tag:
+                self.canvas.move(group_tag, dx, dy)
+            self.last_x, self.last_y = event.x, event.y
 app = Application()
 
 def select_shape(event):
